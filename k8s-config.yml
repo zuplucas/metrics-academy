@@ -1,3 +1,9 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: academy
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -73,7 +79,7 @@ data:
           - role: pod
             namespaces:
               names:
-                - default
+                - academy
 
         relabel_configs:
           - action: labelmap
@@ -85,12 +91,15 @@ data:
             action: replace
             target_label: pod_name
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus-deployment
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-server
   template:
     metadata:
       labels:
@@ -126,7 +135,7 @@ metadata:
   labels:
     app: academy-metrics1
   name: academy-metrics1-service
-  namespace: default
+  namespace: academy
 spec:
   ports:
     - port: 8080
@@ -143,7 +152,7 @@ metadata:
   labels:
     app: academy-metrics-2
   name: academy-metrics2-service
-  namespace: default
+  namespace: academy
 spec:
   ports:
     - port: 8080
@@ -186,4 +195,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: default
-    namespace: default
+    namespace: academy
